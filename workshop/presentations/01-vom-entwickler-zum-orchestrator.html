@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vom Entwickler zum Orchestrator &mdash; Syntegon KI-Workshop</title>
+<style>
+  :root {
+    --primary: #1a5276;
+    --accent: #2980b9;
+    --highlight: #27ae60;
+    --warning: #f39c12;
+    --danger: #c0392b;
+    --bg: #fafafa;
+    --text: #2c3e50;
+    --light: #ecf0f1;
+    --muted: #7f8c8d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: var(--text); background: var(--bg); }
+
+  .slide {
+    width: 100vw;
+    min-height: 100vh;
+    padding: 60px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+    border-bottom: 1px solid #ddd;
+  }
+  .slide.title { background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%); color: white; text-align: center; }
+  .slide.title h1 { color: white; font-size: 3.4em; margin-bottom: 0.4em; }
+  .slide.title .subtitle { color: #d6eaf8; font-size: 1.6em; margin-bottom: 2em; }
+  .slide.title .meta { color: #aed6f1; font-size: 1.2em; }
+  .slide.title .meta + .meta { margin-top: 0.4em; }
+
+  .slide h1 { font-size: 2.8em; color: var(--primary); margin-bottom: 0.3em; line-height: 1.1; }
+  .slide h2 { font-size: 2.2em; color: var(--primary); margin-bottom: 0.6em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+  .slide h3 { font-size: 1.4em; color: var(--accent); margin: 0.8em 0 0.3em; }
+  .slide p, .slide li { font-size: 1.3em; line-height: 1.6; margin-bottom: 0.4em; }
+  .slide ul { padding-left: 1.5em; }
+  .slide .subtitle { font-size: 1.4em; color: var(--accent); margin-bottom: 1.2em; }
+  .slide .small { font-size: 0.95em; color: var(--muted); }
+  .slide .footnote { font-size: 0.85em; color: var(--muted); margin-top: 1.5em; font-style: italic; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 1em 0; }
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 1em 0; }
+  .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 1em 0; }
+
+  .card {
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .card h3 { margin-top: 0; }
+  .card.highlight { border-color: var(--highlight); background: #eafaf1; }
+  .card.muted { border-color: #bdc3c7; opacity: 0.7; }
+  .card.warning { border-color: var(--warning); background: #fef5e7; }
+
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 1.5em 0;
+  }
+  .stage {
+    background: white;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    padding: 18px 14px;
+    text-align: center;
+    position: relative;
+  }
+  .stage .level {
+    font-size: 0.9em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .stage .name { font-size: 1.1em; color: var(--primary); font-weight: bold; margin: 8px 0; }
+  .stage .desc { font-size: 0.95em; color: var(--text); }
+  .stage.current { border-color: var(--warning); background: #fef9e7; }
+  .stage.target { border-color: var(--highlight); background: #d5f5e3; transform: scale(1.05); box-shadow: 0 4px 16px rgba(39, 174, 96, 0.2); }
+  .stage.target::after {
+    content: "← Workshop-Ziel";
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--highlight);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+
+  .processing {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    text-align: center;
+    padding: 80px 40px;
+  }
+  .processing .timer { font-size: 6em; margin-bottom: 0.2em; }
+  .processing .question { font-size: 2.2em; font-weight: bold; max-width: 1000px; margin: 0 auto; line-height: 1.3; }
+  .processing .instruction { font-size: 1.4em; margin-top: 1.5em; opacity: 0.95; }
+
+  .demo-box {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 24px 32px;
+    border-radius: 12px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 1.15em;
+    line-height: 1.6;
+    margin: 1.5em 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .demo-box .prompt { color: var(--warning); }
+  .demo-box .comment { color: #95a5a6; font-style: italic; }
+  .demo-box .ok { color: var(--highlight); }
+
+  .insight-box {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    margin: 1em 0;
+  }
+  .insight-box h3 { color: white; }
+  .insight-box .quote { font-size: 1.5em; font-style: italic; line-height: 1.4; }
+  .insight-box .attribution { font-size: 1em; margin-top: 1em; opacity: 0.85; }
+
+  .vs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 1.1em;
+  }
+  .vs-table th { background: var(--primary); color: white; padding: 14px 18px; text-align: left; }
+  .vs-table td { padding: 12px 18px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  .vs-table tr:nth-child(even) td { background: var(--light); }
+  .vs-table .label { font-weight: bold; color: var(--primary); white-space: nowrap; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin: 0 4px;
+  }
+  .badge-passive { background: #fadbd8; color: var(--danger); }
+  .badge-active { background: #fdebd0; color: var(--warning); }
+  .badge-agentic { background: #d5f5e3; color: var(--highlight); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin: 1.5em 0; }
+  .kpi { background: white; border: 2px solid var(--accent); border-radius: 12px; padding: 20px; text-align: center; }
+  .kpi .icon { font-size: 2.5em; margin-bottom: 0.2em; }
+  .kpi .name { font-size: 1.2em; color: var(--primary); font-weight: bold; }
+  .kpi .goal { font-size: 1em; color: var(--highlight); font-weight: bold; margin: 6px 0; }
+  .kpi .before { font-size: 0.95em; color: var(--muted); }
+  .kpi .after { font-size: 0.95em; color: var(--text); margin-top: 4px; }
+
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 1.5em 0;
+    align-items: stretch;
+  }
+  .stage-pipe {
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 18px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .stage-pipe .step { font-size: 0.85em; color: var(--muted); font-weight: bold; }
+  .stage-pipe .what { font-size: 1.1em; color: var(--primary); font-weight: bold; margin: 6px 0; }
+  .stage-pipe .doc { font-size: 0.85em; color: var(--text); font-family: monospace; background: var(--light); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+
+  .nope-list { font-size: 1.3em; line-height: 2; }
+  .nope-list li { color: var(--muted); }
+  .nope-list li::before { content: "✗ "; color: var(--danger); font-weight: bold; }
+  .nope-list li { list-style: none; }
+
+  .footer {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    font-size: 0.85em;
+    color: #bdc3c7;
+  }
+
+  @media print {
+    .slide { page-break-after: always; min-height: 100vh; }
+    .footer { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============= SLIDE 1: Title ============= -->
+<div class="slide title">
+  <h1>Vom Entwickler zum Orchestrator</h1>
+  <p class="subtitle">Stop Coding &mdash; Start Orchestrating</p>
+  <p class="meta">Syntegon KI-Workshop &middot; Hochsprachen-Team Crailsheim</p>
+  <p class="meta">5./6. Mai 2026 &middot; Co-Creates / AI-Hub</p>
+  <p class="meta" style="margin-top: 2em; font-size: 1em;">Malte Sussdorff &middot; cognovis GmbH</p>
+</div>
+
+<!-- ============= SLIDE 2: Agenda ============= -->
+<div class="slide">
+  <h2>Agenda &mdash; 1,5 Tage</h2>
+  <div class="two-col">
+    <div>
+      <h3>Tag 1 &mdash; Dienstag (8:30&ndash;17:00)</h3>
+      <ul>
+        <li><strong>Block 1:</strong> Vom Entwickler zum Orchestrator <span class="small">(jetzt)</span></li>
+        <li><strong>Block 2:</strong> First Steps mit OpenCode</li>
+        <li><strong>Block 3:</strong> Custom Commands &amp; Subagents</li>
+        <li><strong>Block 4:</strong> AI Agent Patterns</li>
+        <li><strong>Block 5:</strong> Eigenes Repo onboarden &mdash; <code>ai_docs/</code></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Tag 2 &mdash; Mittwoch (8:30&ndash;12:30)</h3>
+      <ul>
+        <li><strong>Block 6:</strong> Scaffolding-Pipeline aufbauen</li>
+        <li><strong>Block 7:</strong> Anwendung auf eure Aufgabe</li>
+        <li><strong>Block 8:</strong> From Learning to Reality</li>
+        <li><strong>12:30:</strong> Mittagessen + offene Diskussion zu Folge-Schritten</li>
+      </ul>
+    </div>
+  </div>
+  <p class="footnote">Diese Agenda ist lebendig &mdash; wenn etwas brennt, passen wir an. Sagt es mir.</p>
+</div>
+
+<!-- ============= SLIDE 3: Spielregeln ============= -->
+<div class="slide">
+  <h2>Spielregeln</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>🗣️ Sprache</h3>
+      <p>Fragen Deutsch oder Englisch &mdash; ich antworte in der Sprache der Frage.</p>
+    </div>
+    <div class="card">
+      <h3>🤚 Fragen jederzeit</h3>
+      <p>Unterbrecht mich. Wenn etwas unklar ist, ist es vermutlich für mehrere unklar.</p>
+    </div>
+    <div class="card">
+      <h3>🛑 &bdquo;Kein-Bock&ldquo;-Card</h3>
+      <p>Wenn ihr eine &Uuml;bung nicht macht, ist das ok. Sagt es offen statt heimlich Mails zu lesen.</p>
+    </div>
+    <div class="card">
+      <h3>🎙️ Voice Recording</h3>
+      <p>L&auml;uft mit, falls niemand widerspricht. Daraus entstehen die Post-Workshop-Outputs.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============= SLIDE 4: Erwartungen/Sorgen ============= -->
+<div class="slide">
+  <h2>Bevor wir loslegen</h2>
+  <div class="two-col" style="margin-top: 1em;">
+    <div class="card highlight">
+      <h3>💚 Was erhofft ihr euch?</h3>
+      <p class="small">Offen in den Raum &mdash; ich notiere auf Flipchart, bleibt sichtbar.</p>
+    </div>
+    <div class="card warning">
+      <h3>⚠️ Welche Sorgen habt ihr?</h3>
+      <p class="small">Auch auf Flipchart. Ich greife sie im Verlauf gezielt auf.</p>
+    </div>
+  </div>
+  <p style="margin-top: 1.5em; font-size: 1.1em;">Es gibt keine dummen Fragen oder ungültigen Sorgen &mdash; nur unausgesprochene.</p>
+</div>
+
+<!-- ============= SLIDE 5: Reifegrad 5 Stufen ============= -->
+<div class="slide">
+  <h2>5 Stufen der KI-gestützten Entwicklung</h2>
+  <p class="subtitle">Wo stehen wir, wo wollen wir hin?</p>
+
+  <div class="stage-grid">
+    <div class="stage current">
+      <div class="level">Stufe 0</div>
+      <div class="name">Keine KI</div>
+      <div class="desc">Klassisches Coden<br><em>(SPS/Motion bisher)</em></div>
+    </div>
+    <div class="stage current">
+      <div class="level">Stufe 1</div>
+      <div class="name">IDE-Hilfsmittel</div>
+      <div class="desc">Copilot Edit Mode<br>internes KI-Chatfenster<br><em>(Hochsprachen)</em></div>
+    </div>
+    <div class="stage target">
+      <div class="level">Stufe 2</div>
+      <div class="name">Coding Agent</div>
+      <div class="desc">EIN Agent, prompt-basiert<br>Code im Diff/MR reviewen</div>
+    </div>
+    <div class="stage">
+      <div class="level">Stufe 3</div>
+      <div class="name">Multi-Agent</div>
+      <div class="desc">Parallele Agents,<br>dokumentenbasiert</div>
+    </div>
+    <div class="stage">
+      <div class="level">Stufe 4–5</div>
+      <div class="name">Autonom</div>
+      <div class="desc">Vollorchestriert,<br>Mensch nur Review</div>
+    </div>
+  </div>
+
+  <p class="footnote" style="margin-top: 3.5em;">~50 % deutscher Entwickler sind in Stufe 0/1, agentisch arbeiten erst 15&ndash;20 % &mdash; und das wächst rasant.<sup>*</sup> <strong>Wir starten heute aus zwei Richtungen</strong> &mdash; Hochsprachen aus Stufe 1, SPS/Motion aus Stufe 0 &mdash; mit dem gleichen Ziel.</p>
+  <p class="small" style="margin-top: 0.5em; font-size: 0.8em;"><sup>*</sup> Felder et al. (TU München, Jan 2026): 48 % nutzen GenAI aktiv. Dey et al. (Jan 2026): 16&ndash;23 % der GitHub-Projekte mit Coding-Agents (Stand Nov 2025). Stack Overflow Survey 2025: 51 % nutzen agentic/autonome Tools.</p>
+</div>
+
+<!-- ============= SLIDE 5b: Audience Diversity ============= -->
+<div class="slide">
+  <h2>Im Raum ist die volle Bandbreite</h2>
+  <p class="subtitle">Das ist Absicht &mdash; und das ist Stärke</p>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>🧑‍💻 Hochsprachen-Entwicklung</h3>
+      <p>C# (Konsole, WPF, WinForms, Office AddIns, Blazor), C++/MFC, etwas TypeScript</p>
+      <p>Tooling heute: Visual Studio, Copilot Edit Mode, internes KI-Chatfenster</p>
+      <p style="color: var(--warning); font-weight: bold; margin-top: 0.5em;">Start: Stufe 1</p>
+    </div>
+    <div class="card">
+      <h3>⚙️ SPS / Motion / Robotik</h3>
+      <p>Siemens TIA, Rexroth Codesys, VBA, Mix mit C# in Maschinen-Projekten</p>
+      <p>Tooling heute: TIA Portal, Codesys, eigene IDEs &mdash; bisher ohne KI</p>
+      <p style="color: var(--danger); font-weight: bold; margin-top: 0.5em;">Start: Stufe 0</p>
+    </div>
+  </div>
+
+  <p style="margin-top: 1.5em; font-size: 1.15em;">Die Stufe-2-Botschaft funktioniert für alle &mdash; <strong>tool-unabhängig</strong>. Wer heute &bdquo;Konsole&ldquo; oder &bdquo;TIA Portal&ldquo; sagt, sagt morgen vielleicht &bdquo;Agent&ldquo;.</p>
+</div>
+
+<!-- ============= SLIDE 6: Coder → Orchestrator ============= -->
+<div class="slide">
+  <h2>Vom Coder zum Orchestrator</h2>
+  <p class="subtitle">Nicht Karriere-Stufen &mdash; ein Karriere-Pivot</p>
+
+  <div class="four-col">
+    <div class="card">
+      <div style="font-size: 3em; text-align: center;">👨‍💻</div>
+      <h3 style="text-align: center;">Coder</h3>
+      <p class="small" style="text-align: center;">Schreibt Funktionen</p>
+    </div>
+    <div class="card">
+      <div style="font-size: 3em; text-align: center;">🔧</div>
+      <h3 style="text-align: center;">Developer</h3>
+      <p class="small" style="text-align: center;">Implementiert Specs</p>
+    </div>
+    <div class="card">
+      <div style="font-size: 3em; text-align: center;">🏗️</div>
+      <h3 style="text-align: center;">Craftsman</h3>
+      <p class="small" style="text-align: center;">Full-Stack-Architekt</p>
+    </div>
+    <div class="card highlight">
+      <div style="font-size: 3em; text-align: center;">🎼</div>
+      <h3 style="text-align: center;">Orchestrator</h3>
+      <p class="small" style="text-align: center;">Führt KI-Team</p>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top: 2em;">
+    <div>
+      <h3 style="color: var(--muted);">Coder → Craftsman</h3>
+      <p>Selbe Achse: mehr Skill, gleiche Rolle. <em>&bdquo;Ich schreibe besseren Code.&ldquo;</em></p>
+    </div>
+    <div>
+      <h3 style="color: var(--highlight);">Craftsman → Orchestrator</h3>
+      <p>Neue Achse: anderer Job. <em>&bdquo;Ich schreibe nicht, ich führe.&ldquo;</em></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============= SLIDE 7: Verantwortung ============= -->
+<div class="slide">
+  <h2>Was bleibt</h2>
+
+  <div class="insight-box">
+    <p class="quote">&bdquo;Was bei euch am Ende übrig bleibt, ist die Verantwortung dafür, dass dieser Code, den ihr in die Produktion gebt, funktioniert. Dafür werdet ihr bezahlt. Und das wird nicht weniger &mdash; das wird wichtiger.&ldquo;</p>
+  </div>
+
+  <p style="margin-top: 1.5em; font-size: 1.2em;">Eure Aufgabe verschiebt sich:</p>
+  <ul style="font-size: 1.25em;">
+    <li>Von <strong>Code-Schreiben</strong> zu <strong>Code-Verantworten</strong></li>
+    <li>Von <strong>Tab-Tab-Tab</strong> zu <strong>Konversation mit Senior Developer</strong></li>
+    <li>Von <strong>einzelnen Funktionen</strong> zu <strong>Pipelines &amp; Systemen</strong></li>
+  </ul>
+</div>
+
+<!-- ============= SLIDE 8: Peer Processing 1 ============= -->
+<div class="slide processing">
+  <div class="timer">⏱️ 60</div>
+  <div class="question">Was bedeutet das für EURE tägliche Arbeit im Hochsprachen-Team?</div>
+  <div class="instruction">Tauscht euch mit eurem Nachbarn aus &mdash; kein Sharing in die Runde, nur Processing.</div>
+</div>
+
+<!-- ============= SLIDE 9: Three Modes ============= -->
+<div class="slide">
+  <h2>Drei Modi der KI-Nutzung</h2>
+  <p class="subtitle">Wer hat die Hände auf der Tastatur?</p>
+
+  <table class="vs-table">
+    <thead>
+      <tr><th>Modus</th><th>Wer schreibt?</th><th>Wer entscheidet?</th><th>Beispiel</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label"><span class="badge badge-passive">PASSIV</span></td>
+        <td>Du</td>
+        <td>Du</td>
+        <td>ChatGPT, copy-paste</td>
+      </tr>
+      <tr>
+        <td class="label"><span class="badge badge-active">AKTIV</span></td>
+        <td>KI</td>
+        <td>Du, pro Aktion</td>
+        <td>Copilot Tab-Completion, Cursor Edit</td>
+      </tr>
+      <tr>
+        <td class="label"><span class="badge badge-agentic">AGENTIC</span></td>
+        <td>KI</td>
+        <td>Du, pro Ziel</td>
+        <td>OpenCode in der Sandbox-Umgebung, Plan + Implement</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top: 1em; font-size: 1.2em; text-align: center;">Syntegon heute: zwischen <strong>Passiv</strong> und <strong>Aktiv</strong>. Workshop-Ziel: <strong>Agentic</strong>.</p>
+</div>
+
+<!-- ============= SLIDE 10: Live Demo ============= -->
+<div class="slide">
+  <h2>🎬 Live-Demo &mdash; In unter einer Minute</h2>
+  <p class="subtitle">Bug finden + Test schreiben + Fix machen + verifizieren</p>
+
+  <div class="demo-box">
+<span class="comment"># Erst das Übungs-Repo holen:</span>
+<span class="prompt">$ git clone https://github.com/cognovis/ki-workshop-practice-repo</span>
+<span class="prompt">$ cd ki-workshop-practice-repo &amp;&amp; dotnet build</span>
+
+<span class="comment"># Dann den Bug-Hunt anstoßen:</span>
+<span class="prompt">$ opencode-cli "FindMax in src/Utils/Utils.cs hat einen Bug.</span>
+<span class="prompt">  Schreibe einen FAILING xUnit-Test, der ihn beweist,</span>
+<span class="prompt">  fixe den Code, und verifiziere dass alle Tests grün werden."</span>
+
+<span class="comment"># Was OpenCode tut:</span>
+<span class="ok">✓</span> liest Utils.cs, findet Off-by-One in <code>i &lt; numbers.Count - 1</code>
+<span class="ok">✓</span> schreibt Test, der das letzte Element als Max prüft
+<span class="ok">✓</span> Test rot &rarr; <code>i &lt; numbers.Count</code> &rarr; Test grün
+<span class="ok">✓</span> <code>dotnet test</code> &rarr; alle grün
+
+<span class="comment"># Vorher: 2 Stunden debuggen mit IDE</span>
+<span class="comment"># Heute:  &lt; 1 Minute mit Agent</span>
+  </div>
+</div>
+
+<!-- ============= SLIDE 11: Peer Processing 2 ============= -->
+<div class="slide processing">
+  <div class="timer">⏱️ 60</div>
+  <div class="question">Wo könntet ihr SOFORT 2 Stunden in eurem aktuellen Code sparen?</div>
+  <div class="instruction">Tauscht euch mit eurem Nachbarn aus.</div>
+</div>
+
+<!-- ============= SLIDE 12: Core Four ============= -->
+<div class="slide">
+  <h2>Die Core Four</h2>
+  <p class="subtitle">Bausteine jeder KI-Coding-Interaktion</p>
+
+  <div class="four-col">
+    <div class="card">
+      <div style="font-size: 2.5em; text-align: center;">📚</div>
+      <h3 style="text-align: center;">Context</h3>
+      <p class="small" style="text-align: center;">Was die KI weiß<br>(Code, Doku, Tickets)</p>
+    </div>
+    <div class="card">
+      <div style="font-size: 2.5em; text-align: center;">🧠</div>
+      <h3 style="text-align: center;">Model</h3>
+      <p class="small" style="text-align: center;">Reasoning-Power<br>(Claude / GPT / OS-Modelle)</p>
+    </div>
+    <div class="card">
+      <div style="font-size: 2.5em; text-align: center;">💬</div>
+      <h3 style="text-align: center;">Prompt</h3>
+      <p class="small" style="text-align: center;">Eure Anweisung<br>(spezifisch, nicht vage)</p>
+    </div>
+    <div class="card highlight">
+      <div style="font-size: 2.5em; text-align: center;">🔧</div>
+      <h3 style="text-align: center;">Tools</h3>
+      <p class="small" style="text-align: center;">Game Changer!<br>(Read, Write, Bash, MCP)</p>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top: 2em;">
+    <div class="card muted">
+      <h3>Phase 1: AI-Coding (Stufe 1)</h3>
+      <p><strong>Context + Model + Prompt</strong> = KI schlägt vor, du führst aus</p>
+    </div>
+    <div class="card highlight">
+      <h3>Phase 2: Agentic Coding (Stufe 2)</h3>
+      <p><strong>Context + Model + Prompt + Tools</strong> = KI liefert komplett</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============= SLIDE 13: LSP vs Agent ============= -->
+<div class="slide">
+  <h2>LSP vs. Agent Understanding</h2>
+  <p class="subtitle">Warum eure IDE plötzlich ein Hilfsmittel und nicht das Cockpit ist</p>
+
+  <div class="two-col">
+    <div class="card muted">
+      <h3>📍 IDE / Language Server Protocol</h3>
+      <p style="font-size: 1.15em; font-style: italic;">&bdquo;Zeigt mir Informationen über Code.&ldquo;</p>
+      <ul>
+        <li>Hover, Goto-Definition, Find-Refs</li>
+        <li>Syntax-Check, Auto-Completion</li>
+        <li>Statisch, file-by-file</li>
+      </ul>
+    </div>
+    <div class="card highlight">
+      <h3>🧠 Coding Agent</h3>
+      <p style="font-size: 1.15em; font-style: italic;">&bdquo;Versteht und erklärt mir den Code.&ldquo;</p>
+      <ul>
+        <li>Cross-File-Reasoning</li>
+        <li>Domain-Begriffe lernen via <code>ai_docs/</code></li>
+        <li>Refactoring von historisch gewachsenem Code</li>
+        <li>Erklärt das &bdquo;Warum&ldquo;, nicht nur das &bdquo;Was&ldquo;</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="margin-top: 2em; font-size: 1.2em; text-align: center;">→ Egal ob <strong>C++/C#-Schnittstellen</strong>, <strong>WPF-Window-Hierarchie</strong>, <strong>Codesys-FB-Bibliothek</strong> oder <strong>SPS-Programmlogik</strong>. Cross-File-Reasoning ist die universelle Stärke.</p>
+</div>
+
+<!-- ============= SLIDE 14: Chat statt Auto-Completion ============= -->
+<div class="slide">
+  <h2>Konversation statt Auto-Completion</h2>
+
+  <div class="two-col">
+    <div class="card muted">
+      <h3>Tab-Tab-Tab</h3>
+      <p>Reaktiv. KI schlägt das nächste Wort vor.</p>
+      <p class="small">Ihr seid in der Driver-Rolle, KI ist Beifahrer mit Vorschlägen.</p>
+    </div>
+    <div class="card highlight">
+      <h3>Konversation</h3>
+      <p>Intentional. Wie mit einem Senior Developer, der eure Codebase kennt.</p>
+      <p class="small">Ihr beschreibt das Ziel, KI macht den Plan, ihr reviewt.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 2em;">Beispiel-Prompts &mdash; je nach eurer Codebase:</h3>
+  <div class="three-col">
+    <div class="card">
+      <h3 style="font-size: 1.1em;">Hochsprachen (C#/WPF)</h3>
+      <ul style="font-size: 1em;">
+        <li>&bdquo;Refactor diese WPF-Klasse auf MVVM, halte das XAML-Interface gleich.&ldquo;</li>
+        <li>&bdquo;Schreibe xUnit-Tests für diesen Office-AddIn-Workflow.&ldquo;</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="font-size: 1.1em;">C++ / MFC + HMI</h3>
+      <ul style="font-size: 1em;">
+        <li>&bdquo;Erkläre die Lifecycle-Verbindung zwischen MFC-Dialog und WPF-HMI.&ldquo;</li>
+        <li>&bdquo;Wo werden in dieser Klasse Ressourcen geleakt?&ldquo;</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="font-size: 1.1em;">SPS / Motion</h3>
+      <ul style="font-size: 1em;">
+        <li>&bdquo;Erkläre diesen FB &mdash; was sind seine Vor-/Nachbedingungen?&ldquo;</li>
+        <li>&bdquo;Generiere die XML-Doku für diesen IEC-61131-3-FB.&ldquo;</li>
+        <li>&bdquo;Schreibe Test-Stub für TIA Openness API.&ldquo;</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============= SLIDE 15: Peer Processing 3 ============= -->
+<div class="slide processing">
+  <div class="timer">⏱️ 60</div>
+  <div class="question">Bei welchem Code in eurem Repo glaubt ihr, kann euch die KI beim Verstehen am meisten helfen?</div>
+  <div class="instruction">Tauscht euch mit eurem Nachbarn aus.</div>
+</div>
+
+<!-- ============= SLIDE 16: 4 KPIs ============= -->
+<div class="slide">
+  <h2>4 KPIs für Agentic Manager</h2>
+  <p class="subtitle">So messt ihr, wie reif eure Mensch-Agent-Zusammenarbeit ist</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="icon">📐</div>
+      <div class="name">Size</div>
+      <div class="goal">Goal: GRÖSSER</div>
+      <div class="before">Vorher: einzelne Funktionen</div>
+      <div class="after">Nachher: ganze Features</div>
+    </div>
+    <div class="kpi">
+      <div class="icon">🔄</div>
+      <div class="name">Attempts</div>
+      <div class="goal">Goal: WENIGER</div>
+      <div class="before">Vorher: 5+ Korrekturen</div>
+      <div class="after">Nachher: First-time-right</div>
+    </div>
+    <div class="kpi">
+      <div class="icon">⏱️</div>
+      <div class="name">Streak</div>
+      <div class="goal">Goal: LÄNGER</div>
+      <div class="before">Vorher: alle 2 min unterbrechen</div>
+      <div class="after">Nachher: 30+ min autonom</div>
+    </div>
+    <div class="kpi">
+      <div class="icon">👤</div>
+      <div class="name">Presence</div>
+      <div class="goal">Goal: WENIGER</div>
+      <div class="before">Vorher: 100 % Hands-on</div>
+      <div class="after">Nachher: Review &amp; Steer</div>
+    </div>
+  </div>
+
+  <p style="margin-top: 2em; font-size: 1.1em; text-align: center; color: var(--muted);">Wenn euch ein 4-Wochen-Check-in spannend findet, könnt ihr die KPIs gegeneinander tracken. Falls der Betriebsrat fragt: niemand wird dabei gemessen, der Code wird gemessen. Falls jemand fragt warum &bdquo;wir&ldquo; &mdash; ich hab dazu keinen Auftrag, das wäre euer eigener Reflex. <em>(Disclaimer ist auch ein Pattern.)</em></p>
+</div>
+
+<!-- ============= SLIDE 17: Time Reduction ============= -->
+<div class="slide">
+  <h2>Was bisher in anderen Workshops messbar war</h2>
+  <p class="subtitle">Reduktion menschlicher Bearbeitungszeit bei richtigem Setup</p>
+
+  <table class="vs-table">
+    <thead>
+      <tr><th>Aufgabe</th><th>Vorher</th><th>Nachher</th><th>Reduktion</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="label">Bug finden + fixen</td><td>120 min</td><td>36 min</td><td style="color: var(--highlight); font-weight: bold;">&minus;70 %</td></tr>
+      <tr><td class="label">Code Review</td><td>45 min</td><td>29 min</td><td style="color: var(--highlight); font-weight: bold;">&minus;35 %</td></tr>
+      <tr><td class="label">Refactoring</td><td>180 min</td><td>27 min</td><td style="color: var(--highlight); font-weight: bold;">&minus;85 %</td></tr>
+      <tr><td class="label">Unit-Tests schreiben</td><td>60 min</td><td>6 min</td><td style="color: var(--highlight); font-weight: bold;">&minus;90 %</td></tr>
+    </tbody>
+  </table>
+
+  <p class="footnote">Erfahrungswerte aus früheren Workshops mit vergleichbaren Teams. Eure tatsächlichen Zahlen erheben wir gemeinsam beim Check-in nach dem Workshop. Diese Werte erfordern <strong>richtiges agentisches Setup</strong> &mdash; die KPIs auf der vorigen Folie messen, ob ihr da seid.</p>
+</div>
+
+<!-- ============= SLIDE 18: Peer Processing 4 ============= -->
+<div class="slide processing">
+  <div class="timer">⏱️ 60</div>
+  <div class="question">Wo wäre eure größte Zeitersparnis &mdash; und welche eurer KPIs ist heute am schwächsten?</div>
+  <div class="instruction">Tauscht euch mit eurem Nachbarn aus.</div>
+</div>
+
+<!-- ============= SLIDE 18b: SPS/Motion-Antwort ============= -->
+<div class="slide">
+  <h2>&bdquo;Aber meine IDE hat keine KI&ldquo;</h2>
+  <p class="subtitle">Für die SPS/Motion-Programmierer im Raum &mdash; und alle, die mal in einem ähnlichen Setup landen</p>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>🎯 Der Trick</h3>
+      <p>Der Coding-Agent läuft in einer <strong>Sandbox-Umgebung</strong>, NICHT in eurer IDE.</p>
+      <p>Solange euer Tool über Dateien, APIs oder Konfiguration steuerbar ist, kann der Agent damit arbeiten.</p>
+    </div>
+    <div class="card highlight">
+      <h3>🔓 Was geht heute schon</h3>
+      <ul style="font-size: 1em;">
+        <li><strong>TIA Portal:</strong> Openness API, DLL-basiert, C# darüber → Agent nutzbar</li>
+        <li><strong>Codesys:</strong> Export/Import, ST-Code als Text → Agent kann lesen, schreiben, prüfen</li>
+        <li><strong>VBA / Macros:</strong> Reine Textdateien, perfekt für Agents</li>
+        <li><strong>Codierichtlinien-Check:</strong> Agent liest Code, vergleicht mit Doku, gibt Bericht</li>
+        <li><strong>Test-Generierung:</strong> auch ohne IDE-KI möglich, wenn Tests als Text definiert sind</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="insight-box" style="margin-top: 1.5em;">
+    <p style="font-size: 1.3em; line-height: 1.4;">Wenn die KI deine Software über <strong>Dateien</strong>, <strong>APIs</strong> oder <strong>Konfiguration</strong> beeinflussen kann &mdash; kann sie damit arbeiten. Das gilt für SPS, Motion, C#, C++, Office-AddIns gleichermaßen.</p>
+  </div>
+</div>
+
+<!-- ============= SLIDE 19: Was heute NICHT passiert ============= -->
+<div class="slide">
+  <h2>Was heute NICHT passiert</h2>
+  <p class="subtitle">Erwartungs-Management, damit ihr nicht am Ende enttäuscht seid</p>
+
+  <ul class="nope-list">
+    <li>Multi-Agent-Orchestrierung (Stufe 3) &mdash; das ist Folge-Workshop-Stoff</li>
+    <li>Autonome Agents über Nacht &mdash; brauchen anderes Vertrauens-Niveau</li>
+    <li>Background-Agents in eurer IDE &mdash; nicht in Stufe 2</li>
+    <li>Tool-Vergleiche (Cursor vs. OpenCode vs. Copilot) &mdash; wir nutzen OpenCode, weil es zu eurem LLM-Routing passt</li>
+    <li>Auto-Commit durch den Agent &mdash; ist Compliance-Policy (interne Risikobeurteilung), Mensch macht den Commit</li>
+    <li>Eine fertige Antwort auf &bdquo;welcher Vendor langfristig&ldquo; &mdash; das löst der Markt, nicht 1,5 Tage Workshop</li>
+  </ul>
+
+  <div class="insight-box" style="margin-top: 2em;">
+    <h3>Was heute SCHON passiert</h3>
+    <p style="font-size: 1.4em;">Ihr werdet bis Ende Tag 2 in der Lage sein, mit einem Coding-Agenten reproduzierbar zu arbeiten. Eine Pipeline gebaut zu haben. Und sagen können: <em>&bdquo;Ich habe nicht selbst getippt, der Agent hat &mdash; und der Code ist gut.&ldquo;</em></p>
+  </div>
+</div>
+
+<!-- ============= SLIDE 19b: Sneak-Peek Stufe 3-4 ============= -->
+<div class="slide">
+  <h2>Wie das aussehen kann (Stufe 3–4)</h2>
+  <p class="subtitle">Kurzer Blick in mein eigenes Setup &mdash; nicht zum Nachbauen, nur als Horizont</p>
+
+  <div class="three-col">
+    <div class="card">
+      <h3>🎼 Bead-Orchestrator</h3>
+      <p class="small">17 Phasen pro Aufgabe — Sizing &rarr; Plan &rarr; Implementer &rarr; Review &rarr; Codex-Adversarial &rarr; Verification (VETO) &rarr; UAT &rarr; Constraints &rarr; Changelog &rarr; Close.</p>
+      <p style="color: var(--accent); font-weight: bold;">Eine ausgewachsene Variante eurer Stufe-2-Pipeline.</p>
+    </div>
+    <div class="card">
+      <h3>🌊 Wave-Orchestrator</h3>
+      <p class="small">Mehrere Aufgaben parallel über cmux-Panes. Dependency-aware Wellen. Long-lived Monitor parkt auf Status.</p>
+      <p style="color: var(--accent); font-weight: bold;">3&ndash;5 Agenten gleichzeitig, ich gucke nur drauf.</p>
+    </div>
+    <div class="card">
+      <h3>🔍 Independent-Reviewer</h3>
+      <p class="small">Ein Agent schreibt, ein zweiter (mit anderem Kontext) reviewt, ein dritter verifiziert. Adversarial Pattern.</p>
+      <p style="color: var(--accent); font-weight: bold;">KI checkt KI &mdash; reduziert Halluzinations-Risiko.</p>
+    </div>
+  </div>
+
+  <div class="insight-box" style="margin-top: 1.5em;">
+    <p style="font-size: 1.2em;">Das ist mein Tagesgeschäft. Es braucht <strong>2&ndash;3 Monate</strong>, da hinzukommen &mdash; und Stufe 2 als sicheres Fundament. Wer Stufe 2 nicht beherrscht, kann Stufe 3 nicht aufbauen.</p>
+    <p style="font-size: 1em; margin-top: 0.5em; opacity: 0.9;"><em>Kurze Live-Demo, falls die Sandbox mitspielt &mdash; sonst zeig ich&rsquo;s euch in der Pause.</em></p>
+  </div>
+</div>
+
+<!-- ============= SLIDE 20: Tag 2 Vorschau ============= -->
+<div class="slide">
+  <h2>Was am Mittwoch passiert</h2>
+  <p class="subtitle">Die Pipeline, die ihr selbst baut &mdash; basierend auf einer realen Aufgabe von euch</p>
+
+  <div class="pipeline">
+    <div class="stage-pipe">
+      <div class="step">①</div>
+      <div class="what">Context</div>
+      <div class="doc">briefing.md</div>
+    </div>
+    <div class="stage-pipe">
+      <div class="step">②</div>
+      <div class="what">Plan</div>
+      <div class="doc">plan.md</div>
+    </div>
+    <div class="stage-pipe">
+      <div class="step">③</div>
+      <div class="what">Test-Plan</div>
+      <div class="doc">test-plan.md</div>
+    </div>
+    <div class="stage-pipe">
+      <div class="step">④</div>
+      <div class="what">Implement</div>
+      <div class="doc">Code + Tests</div>
+    </div>
+    <div class="stage-pipe">
+      <div class="step">⑤</div>
+      <div class="what">Review + MR</div>
+      <div class="doc">Mensch-Gate</div>
+    </div>
+  </div>
+
+  <p style="margin-top: 1.5em; font-size: 1.2em;"><strong>Kernprinzip:</strong> Jede Stufe produziert ein <strong>Dokument</strong>. Dokumente sind Input für die nächste Stufe. Mensch reviewt vor jeder Stufe.</p>
+
+  <p class="footnote">Wenn jeder im Team sich diese Pipeline selbst zusammenbastelt, gibt es am Ende 4 Varianten bei 4 Leuten. Die Antwort: ein einheitlicher Workflow, an dem alle arbeiten.</p>
+</div>
+
+<!-- ============= SLIDE 21: Hausaufgabe ============= -->
+<div class="slide">
+  <h2>Hausaufgabe für morgen</h2>
+  <p class="subtitle">Bringt Mittwoch eine reale Aufgabe mit &mdash; je nach eurer Welt</p>
+
+  <table class="vs-table" style="font-size: 1em;">
+    <thead>
+      <tr><th style="width: 22%;">Eure Rolle</th><th>Passende Mitbringsel</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">C# / WPF / WinForms</td>
+        <td>WPF-Bug, Office-AddIn-Erweiterung, Blazor-Komponenten-Refactoring, kleine xUnit-Lücke schließen</td>
+      </tr>
+      <tr>
+        <td class="label">C++/MFC + HMI</td>
+        <td>Schnittstelle zwischen MFC und WPF-HMI, Code-Verständnis-Aufgabe an historisch gewachsenem Code</td>
+      </tr>
+      <tr>
+        <td class="label">Siemens TIA / SPS</td>
+        <td>Codierichtlinie-Check via Openness API, Test-Stub-Generierung, FB-Doku, Refactoring eines bestehenden FBs</td>
+      </tr>
+      <tr>
+        <td class="label">Motion / Robotik</td>
+        <td>Codesys-ST-Funktionsblock-Review, Refactoring eines Bewegungs-Templates, VBA-/C#-Tooling-Aufgabe</td>
+      </tr>
+      <tr>
+        <td class="label">Mischrolle SPS+C#</td>
+        <td>Beides möglich — sucht euch den Anteil, der euch heute am meisten Zeit kostet</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card warning" style="margin-top: 1em;">
+    <h3>Wenn ihr unsicher seid</h3>
+    <p>Heute Nachmittag in Block 5 fragen, wenn wir eure Codebase onboarden. <strong>Auch &bdquo;Schreib mir Codierichtlinie auf Basis bestehenden Codes&ldquo;</strong> ist eine valide Aufgabe — gerade für SPS/Motion-Entwickler ein guter Einstieg.</p>
+  </div>
+
+  <p class="footnote">Vermeidet: brandneues Greenfield, Hardware-In-The-Loop-Aufgaben, Dinge die kein Mensch im Team versteht.</p>
+</div>
+
+<!-- ============= SLIDE 22: Closing ============= -->
+<div class="slide title">
+  <h1 style="font-size: 3em;">Stop Coding.<br>Start Orchestrating.</h1>
+  <p class="subtitle" style="margin-top: 1em;">Build systems that build systems.</p>
+
+  <div style="margin-top: 3em; font-size: 1.4em;">
+    <p>Pause. Dann legen wir los.</p>
+    <p style="margin-top: 0.5em;">Wer Setup-Probleme mit OpenCode hat &mdash; <strong>kommt zu mir</strong>.</p>
+  </div>
+
+  <p class="meta" style="margin-top: 4em;">→ Block 2: First Steps mit OpenCode (10:00&ndash;11:30)</p>
+</div>
+
+<div class="footer">Syntegon KI-Workshop &middot; Mai 2026 &middot; cognovis</div>
+</body>
+</html>

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Übungs-Slides &mdash; Syntegon KI-Workshop</title>
+<style>
+  :root {
+    --primary: #1a5276;
+    --accent: #2980b9;
+    --green: #27ae60;
+    --orange: #f39c12;
+    --red: #c0392b;
+    --purple: #6c3483;
+    --gold: #d4ac0d;
+    --bg: #fafafa;
+    --text: #2c3e50;
+    --light: #ecf0f1;
+    --muted: #7f8c8d;
+    --code-bg: #2c3e50;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); background: var(--bg); }
+
+  .slide {
+    width: 100vw;
+    min-height: 100vh;
+    padding: 50px 80px;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+  }
+  .block-tag {
+    background: var(--primary);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: bold;
+  }
+  .timer {
+    font-size: 4em;
+    font-weight: bold;
+    color: var(--orange);
+  }
+
+  h1 { font-size: 3em; color: var(--primary); margin-bottom: 0.2em; line-height: 1.1; }
+  h2.subtitle { font-size: 1.5em; color: var(--accent); margin-bottom: 1.2em; font-weight: normal; }
+
+  .goal {
+    background: #d5f5e3;
+    border-left: 6px solid var(--green);
+    padding: 14px 22px;
+    margin: 0.4em 0 1em;
+    font-size: 1.4em;
+  }
+  .goal strong { color: var(--green); }
+
+  .steps { margin: 0.5em 0 1em; }
+  .steps ol { list-style: none; counter-reset: step; padding: 0; }
+  .steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 60px;
+    position: relative;
+    font-size: 1.25em;
+    line-height: 1.5;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 8px;
+    background: var(--primary);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+
+  .prompt-box {
+    background: var(--code-bg);
+    color: #ecf0f1;
+    padding: 18px 24px;
+    border-radius: 10px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 1.15em;
+    line-height: 1.5;
+    margin: 0.6em 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .prompt-box .cmd { color: var(--orange); }
+  .prompt-box .quote { color: #aed6f1; }
+  .prompt-box .comment { color: #95a5a6; font-style: italic; }
+
+  .done-when {
+    background: #fef5e7;
+    border-left: 6px solid var(--orange);
+    padding: 14px 22px;
+    margin: 1em 0 0;
+    font-size: 1.15em;
+  }
+  .done-when strong { color: var(--orange); }
+
+  .next-up {
+    margin-top: auto;
+    padding-top: 1em;
+    border-top: 1px dashed #bdc3c7;
+    color: var(--muted);
+    font-size: 1.05em;
+    font-style: italic;
+  }
+
+  /* Block-specific colors */
+  .b2 .block-tag { background: #d35400; }
+  .b3 .block-tag { background: var(--accent); }
+  .b4 .block-tag { background: var(--green); }
+  .b5 .block-tag { background: var(--purple); }
+  .b6 .block-tag { background: var(--red); }
+  .b7 .block-tag { background: var(--gold); }
+
+  .two-col-roles {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin: 0.6em 0;
+  }
+  .role-card {
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .role-card h3 { color: var(--primary); font-size: 1.1em; margin-bottom: 4px; }
+  .role-card p { font-size: 1em; line-height: 1.4; }
+
+  .info {
+    background: #e8f4f8;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin: 0.6em 0;
+    font-size: 1em;
+    color: var(--accent);
+  }
+
+  /* Sharing slide */
+  .slide.sharing {
+    background: linear-gradient(135deg, #6c3483 0%, #884ea0 100%);
+    color: white;
+    text-align: center;
+    justify-content: center;
+  }
+  .sharing h1 { color: white; }
+  .sharing .subtitle { color: #d2b4de; }
+  .sharing .question { font-size: 2em; font-weight: bold; margin: 1em 0; max-width: 1000px; margin-left: auto; margin-right: auto; }
+  .sharing .timer { color: #f8c471; }
+
+  @media print {
+    .slide { page-break-after: always; min-height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- BLOCK 2 — First Steps mit OpenCode (10:00–11:30)            -->
+<!-- ============================================================ -->
+
+<!-- ----- Block 2 Setup: Repo clonen ----- -->
+<div class="slide b2">
+  <div class="header">
+    <span class="block-tag">Block 2 &middot; Setup</span>
+    <span class="timer">⏱️ 5 min</span>
+  </div>
+  <h1>Übungs-Repo holen</h1>
+  <h2 class="subtitle">Public auf GitHub &mdash; aus eurer Sandbox-Umgebung direkt clonebar</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Praxis-Repository auschecken, dass <code>dotnet build</code> + <code>dotnet test</code> sauber durchlaufen.</div>
+
+  <div class="prompt-box">
+<span class="comment"># Standard (main-Branch):</span>
+<span class="cmd">$ git clone https://github.com/cognovis/ki-workshop-practice-repo</span>
+<span class="cmd">$ cd ki-workshop-practice-repo</span>
+
+<span class="comment"># Oder explizit den Workshop-Stand pinnen:</span>
+<span class="cmd">$ git checkout v1.0</span>            <span class="comment"># Tag (eingefroren)</span>
+<span class="cmd">$ git checkout syntegon-mai-2026</span>  <span class="comment"># Branch (gepinnt)</span>
+
+<span class="cmd">$ dotnet build</span>
+<span class="cmd">$ dotnet test</span>
+
+<span class="comment"># Erwartet: Build erfolgreich, alle Tests GRÜN.</span>
+<span class="comment"># Calculator.cs ist sauber (Referenz für "what good looks like").</span>
+<span class="comment"># Utils.cs hat 5 versteckte Bugs &mdash; eure Spielwiese.</span>
+  </div>
+
+  <div class="info">💡 Clone-Probleme? &mdash; Hand heben, ich komme rum.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Build + Tests grün im Repo-Verzeichnis.</div>
+
+  <p class="next-up">→ Falls Build fehlschlägt wegen .NET-Version: nächste Slide. Sonst direkt Übung 1.</p>
+</div>
+
+<!-- ----- Block 2 .NET-Version-Mismatch (Bonus/Setup-Help) ----- -->
+<div class="slide b2">
+  <div class="header">
+    <span class="block-tag">Block 2 &middot; Bonus &middot; Setup-Fix</span>
+    <span class="timer">⏱️ 10 min</span>
+  </div>
+  <h1>Erste reale Aufgabe: .NET-Version-Mismatch</h1>
+  <h2 class="subtitle">Bei euch ist .NET 10 installiert, das Repo zeigt auf <code>net8.0</code> &mdash; lasst den Agenten das lösen</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Statt selbst die <code>.csproj</code> anzufassen, mit dem Agenten besprechen wie ein Migrations-Plan auf .NET 10 aussieht. Erste echte Anwendung &mdash; nicht von uns vorgekocht.</div>
+
+  <div class="steps">
+    <ol>
+      <li><code>dotnet build</code> ausführen, Fehlermeldung lesen (oder ihr seht <code>net8.0</code> in den .csproj)</li>
+      <li>Agenten <strong>zuerst nach einem Plan</strong> fragen, NICHT direkt fixen lassen</li>
+      <li>Plan reviewen: was ändert sich? Was sind Risiken? Sind Breaking Changes drin?</li>
+      <li>Wenn Plan ok: implementieren lassen, Tests laufen lassen</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Schritt 1: Plan erstellen lassen (NICHT implementieren!)</span>
+<span class="quote">Auf meinem Rechner ist .NET 10 installiert, aber dieses Projekt</span>
+<span class="quote">zeigt auf net8.0. Erstelle einen Migrations-Plan auf net10.0:</span>
+<span class="quote">- Welche Dateien müssen geändert werden?</span>
+<span class="quote">- Gibt es Breaking Changes zwischen .NET 8 und .NET 10,</span>
+<span class="quote">  die für unseren Code (xUnit, FluentAssertions) relevant sind?</span>
+<span class="quote">- Wie kann ich verifizieren, dass nach der Migration alles grün ist?</span>
+<span class="quote">NUR Plan ausgeben, keine Änderungen am Code.</span>
+
+<span class="comment"># Schritt 2: Plan reviewen, dann ausführen lassen:</span>
+<span class="quote">Plan sieht gut aus. Setze ihn um. Mache am Ende dotnet test</span>
+<span class="quote">und zeig mir das Ergebnis. Den Commit lass ich selbst machen.</span>
+  </div>
+
+  <div class="info">🎯 <strong>Lehr-Moment:</strong> Das ist Stufe-2-Verhalten in Reinform. Plan &rarr; Review &rarr; Implement &rarr; Verifizieren. Genau dieser Zyklus kommt morgen in Block 6 als formalisierte Pipeline wieder.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> <code>dotnet build</code> + <code>dotnet test</code> auf .NET 10 grün durchlaufen, Commit-Message vom Agenten vorgeschlagen aber selbst gemacht.</div>
+
+  <p class="next-up">→ Übung 1: Codebase verstehen lassen</p>
+</div>
+
+<!-- ----- Block 2 Übung 1: Codebase verstehen ----- -->
+<div class="slide b2">
+  <div class="header">
+    <span class="block-tag">Block 2 &middot; Übung 1</span>
+    <span class="timer">⏱️ 25 min</span>
+  </div>
+  <h1>Codebase verstehen lassen</h1>
+  <h2 class="subtitle">Erste Konversation mit OpenCode &mdash; explorieren statt code lesen</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Verstehen, was im Practice-Repo steckt, ohne den Code selbst zu öffnen.</div>
+
+  <div class="steps">
+    <ol>
+      <li>Im Terminal: <code>cd practice-repo</code> &rarr; <code>opencode-cli</code></li>
+      <li>Stellt OpenCode 4 Fragen nacheinander (siehe unten)</li>
+      <li>Nach jeder Antwort: kurz nachfragen, wenn etwas unklar ist (&bdquo;Erkläre mir das genauer.&ldquo;)</li>
+      <li>Notiert eine Erkenntnis und eine Überraschung</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Beispiel-Fragen (im interaktiven Modus, nacheinander):</span>
+<span class="quote">Was macht dieses Projekt?</span>
+<span class="quote">Welche Technologien werden hier verwendet?</span>
+<span class="quote">Wie ist der Unterschied zwischen Calculator.cs und Utils.cs?</span>
+<span class="quote">Wo sind Tests und welche Methoden sind nicht abgedeckt?</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Ihr versteht die Struktur &mdash; ohne den Code geöffnet zu haben.</div>
+
+  <p class="next-up">→ Sharing (5 min): Welche Frage hat den meisten Erkenntnisgewinn gebracht?</p>
+</div>
+
+<!-- ----- Block 2 Übung 2: Bug Hunt + Tests ----- -->
+<div class="slide b2">
+  <div class="header">
+    <span class="block-tag">Block 2 &middot; Übung 2</span>
+    <span class="timer">⏱️ 25 min</span>
+  </div>
+  <h1>Bug-Hunt in <code>Utils.cs</code></h1>
+  <h2 class="subtitle">Vom Verdacht zum dokumentierten Beweis</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Mindestens einen Bug durch einen <strong>roten Test</strong> festnageln &mdash; bevor ihr fixt.</div>
+
+  <div class="steps">
+    <ol>
+      <li>Lasst OpenCode <code>Utils.cs</code> analysieren und alle Bugs/Issues auflisten</li>
+      <li>Wählt EINEN aus (Empfehlung: <code>FindMax</code> &mdash; Off-by-One ist subtil)</li>
+      <li>Lasst OpenCode einen <strong>FAILING</strong> xUnit-Test schreiben, der den Bug beweist</li>
+      <li><code>dotnet test</code> &rarr; muss rot sein (sonst war der Bug nicht echt)</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="quote">Analysiere src/Utils/Utils.cs gründlich. Liste alle möglichen Bugs,</span>
+<span class="quote">fehlende Validation und Performance-Issues mit Begründung auf.</span>
+
+<span class="comment"># Dann gezielt:</span>
+<span class="quote">Schreibe einen FAILING xUnit-Test mit FluentAssertions für den</span>
+<span class="quote">FindMax-Bug. Naming: Should_X_When_Y. Lass den Test rot bleiben.</span>
+
+<span class="cmd">$ dotnet test --filter FindMax</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Mindestens 1 roter Test im Repo committed (kein Fix!).</div>
+
+  <p class="next-up">→ Sharing (5 min): Welcher Bug war versteckter als gedacht?</p>
+</div>
+
+<!-- ----- Block 2 Übung 3: Bug fixen + Refactor ----- -->
+<div class="slide b2">
+  <div class="header">
+    <span class="block-tag">Block 2 &middot; Übung 3</span>
+    <span class="timer">⏱️ 25 min</span>
+  </div>
+  <h1>Fix + Refactor &mdash; Diff reviewen</h1>
+  <h2 class="subtitle">Erste Erfahrung mit Mensch-Gate vor Commit</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Roten Test grün bekommen + Refactor wagen + <strong>Diff lesen, nicht blind committen</strong>.</div>
+
+  <div class="steps">
+    <ol>
+      <li>Lasst OpenCode den Bug fixen, bis Test grün ist</li>
+      <li>Schaut den Diff an: was hat OpenCode geändert? Hat es nebenbei was angefasst?</li>
+      <li>Stretch: Refactor &mdash; <code>RemoveDuplicates</code> auf O(n) mit HashSet</li>
+      <li><strong>Ihr</strong> macht den <code>git commit</code>, NICHT der Agent (Auto-Commit-Verbot)</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="quote">Fixe den FindMax-Bug so, dass alle Tests grün werden.</span>
+<span class="quote">Ändere NUR Utils.cs FindMax &mdash; nichts anderes.</span>
+<span class="quote">Schlag mir die Commit-Message vor, ich committe selbst.</span>
+  </div>
+
+  <div class="info">💡 Falls OpenCode &bdquo;nebenbei&ldquo; was anderes anfasst &mdash; abbrechen und Prompt schärfen.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Tests grün, Diff gelesen, eigener Commit im Branch.</div>
+
+  <p class="next-up">→ Sharing (5 min): Was hat OpenCode versucht, ohne dass ihr es gewollt hättet?</p>
+</div>
+
+<!-- ----- Block 2 Übung 4: Mass-Mode — Tests für alle restlichen Bugs ----- -->
+<div class="slide b2">
+  <div class="header">
+    <span class="block-tag">Block 2 &middot; Übung 4</span>
+    <span class="timer">⏱️ 20 min</span>
+  </div>
+  <h1>Mass-Mode: Red &rarr; Fix &rarr; Green</h1>
+  <h2 class="subtitle">Den Workflow auf <strong>alle</strong> verbleibenden Bugs in <code>Utils.cs</code> anwenden</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Sehen, wie der Single-Bug-Workflow aus Übung 2/3 sich skaliert &mdash; alle Bug-Hunt-Erkenntnisse auf einmal in Tests gießen, dann fixen.</div>
+
+  <div class="steps">
+    <ol>
+      <li><strong>Mass-Red:</strong> für ALLE in Übung 2 gefundenen Bugs (außer FindMax) failing Tests in einem Rutsch schreiben lassen</li>
+      <li><code>dotnet test</code> &rarr; mehrere Tests müssen rot sein</li>
+      <li><strong>Fix-Schleife:</strong> Bug für Bug fixen lassen, jeweils kurz Diff reviewen</li>
+      <li><strong>Green:</strong> <code>dotnet test</code> &rarr; alle grün. Optional Refactor (RemoveDuplicates auf O(n))</li>
+      <li>Pro Bug einen Commit (4 Commits) &mdash; <em>ihr</em> committet, Agent schlägt nur Messages vor</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Mass-Red: alle failing Tests auf einmal</span>
+<span class="quote">Erstelle FAILING xUnit-Tests mit FluentAssertions für alle Bugs aus Übung 2,</span>
+<span class="quote">die noch offen sind (FindMax ist gefixt). Mindestens:</span>
+<span class="quote">  - ParseJson&lt;T&gt; wirft bei malformed JSON</span>
+<span class="quote">  - RemoveDuplicates ist O(n²) — Stopwatch-Vergleichstest mit großer Liste</span>
+<span class="quote">  - ValidateEmail akzeptiert ungültige Adressen</span>
+<span class="quote">  - CalculateAge falsch wenn Geburtstag dieses Jahr noch nicht war</span>
+<span class="quote">Naming: Should_X_When_Y. Alle Tests in tests/Utils.Tests/UtilsTests.cs.</span>
+<span class="quote">Lass alle Tests rot bleiben &mdash; KEIN Code-Fix.</span>
+
+<span class="comment"># Fix-Schleife: Bug für Bug</span>
+<span class="quote">Fixe jetzt die Bugs nacheinander. Stop nach JEDEM Bug.</span>
+<span class="quote">Schlag mir Commit-Message vor, ich committe selbst.</span>
+<span class="quote">Reihenfolge: ParseJson → CalculateAge → ValidateEmail → RemoveDuplicates</span>
+<span class="quote">(RemoveDuplicates auf HashSet refactoren, Performance-Test muss grün werden)</span>
+  </div>
+
+  <div class="info">🎯 <strong>Lehr-Pointe:</strong> Mass-Red &rarr; Single-Fix-Schleife ist ein typisches Brownfield-Pattern. Schreiben aller Akzeptanz-Tests in einem Schritt = klarer Definition-of-Done. Dann fixt man sequenziell mit Sicherheitsnetz.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Alle 4 Tests grün, 4 saubere Commits im Branch, RemoveDuplicates auf O(n) refactored.</div>
+
+  <p class="next-up">→ Sharing (5 min): War die Mass-Red-Phase schneller oder langsamer als 4× Single-Bug?</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- BLOCK 3 — Custom Commands & Subagents (11:30–12:00)        -->
+<!-- ============================================================ -->
+
+<div class="slide b3">
+  <div class="header">
+    <span class="block-tag">Block 3</span>
+    <span class="timer">⏱️ 20 min</span>
+  </div>
+  <h1>Erste Custom Commands bauen</h1>
+  <h2 class="subtitle">Wiederverwendbare Prompts als Datei einfrieren</h2>
+
+  <div class="goal"><strong>Ziel:</strong> 2&ndash;3 Custom Commands selbst schreiben und nutzen können.</div>
+
+  <div class="steps">
+    <ol>
+      <li>In OpenCode: <code>/init</code> falls noch nicht geschehen (erstellt <code>AGENTS.md</code>)</li>
+      <li>Erstellt Verzeichnis <code>.opencode/commands/</code></li>
+      <li>Schreibt 3 Markdown-Dateien (siehe unten) &mdash; je ein Command</li>
+      <li>Probiert sie mit <code>/explain Calculator.cs</code> usw. aus</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># .opencode/commands/explain.md</span>
+<span class="quote">Erkläre den folgenden Code in einfachen Worten:
+- Was er tut
+- Warum so geschrieben (Pattern, Konvention)
+- Welche Risiken/Annahmen er hat</span>
+
+<span class="comment"># .opencode/commands/testme.md</span>
+<span class="quote">Schreibe xUnit-Tests mit FluentAssertions für die genannte Methode:
+- Happy Path
+- Edge Cases (null, leer, Boundary)
+- Error-Cases mit Should().Throw&lt;&gt;</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Mindestens 2 Custom Commands erstellt + einmal aufgerufen.</div>
+
+  <p class="next-up">→ Mini-Demo Malte (5 min): Subagent-Pattern mit review-agent aus realer Library.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- BLOCK 4 — Pattern Gallery (13:45–15:15)                     -->
+<!-- ============================================================ -->
+
+<!-- ----- Pattern 1 ----- -->
+<div class="slide b4">
+  <div class="header">
+    <span class="block-tag">Block 4 &middot; Pattern 1</span>
+    <span class="timer">⏱️ 15 min</span>
+  </div>
+  <h1>Iterative Human-in-the-Loop</h1>
+  <h2 class="subtitle">Step-by-step bauen mit Kontrolle nach jeder Etappe</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Eine kleine Funktion in 3 kontrollierten Schritten aufbauen, statt einen großen Prompt rauszuhauen.</div>
+
+  <div class="steps">
+    <ol>
+      <li>Schritt 1: <em>Simpel.</em> Einfache Funktion bauen lassen.</li>
+      <li>Schritt 2: <em>Robuster.</em> Error-Handling ergänzen lassen.</li>
+      <li>Schritt 3: <em>Production-ready.</em> Logging + Doku ergänzen.</li>
+      <li>Beobachtet, wie der Kontext zwischen Schritten wächst.</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="quote">Schreibe eine simple IsValidEmail(string)-Methode in Utils.cs.</span>
+<span class="comment"># review, dann:</span>
+<span class="quote">Erweitere um Try/Catch und Null-Check.</span>
+<span class="comment"># review, dann:</span>
+<span class="quote">Füge XML-Doc + Logging hinzu, mache es production-ready.</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> 3 Iterationen sichtbar, jede einzeln reviewt.</div>
+
+  <p class="next-up">→ Pattern 2: Reusable Commands</p>
+</div>
+
+<!-- ----- Pattern 2 ----- -->
+<div class="slide b4">
+  <div class="header">
+    <span class="block-tag">Block 4 &middot; Pattern 2</span>
+    <span class="timer">⏱️ 15 min</span>
+  </div>
+  <h1>Reusable Commands</h1>
+  <h2 class="subtitle">Wiederkehrende Aufgaben einfrieren &mdash; nicht jedesmal neu prompten</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Einen <code>/security</code>-Command bauen, der Code auf Schwachstellen prüft.</div>
+
+  <div class="steps">
+    <ol>
+      <li>Datei <code>.opencode/commands/security.md</code> anlegen</li>
+      <li>Inhalt: was geprüft werden soll (Input-Validation, Injection, Auth)</li>
+      <li>Aufrufen mit <code>/security</code> auf <code>Utils.cs</code></li>
+      <li>Beobachten: konsistentere Ergebnisse als Ad-hoc-Prompt</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># .opencode/commands/security.md</span>
+<span class="quote">Prüfe den genannten Code auf Sicherheitslücken:
+- Input Validation (null, leer, Boundary)
+- Injection-Risiken (SQL, JSON, Command)
+- Falsche Auth/Auth-Annahmen
+- Resource Leaks (using/Dispose, IDisposable)
+Antwort als nummerierte Liste mit Severity (Hoch/Mittel/Niedrig).</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> <code>/security</code> existiert, einmal angewandt, Output gespeichert.</div>
+
+  <p class="next-up">→ Pattern 3: Sub-Agents</p>
+</div>
+
+<!-- ----- Pattern 3 ----- -->
+<div class="slide b4">
+  <div class="header">
+    <span class="block-tag">Block 4 &middot; Pattern 3</span>
+    <span class="timer">⏱️ 15 min</span>
+  </div>
+  <h1>Sub-Agent Pattern</h1>
+  <h2 class="subtitle">Spezialist statt Generalist &mdash; Rolle + Kontext einengen</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Mehrere unabhängige Aufgaben parallel an Subagents geben (eine Aufgabe = ein Agent).</div>
+
+  <div class="steps">
+    <ol>
+      <li>Aufgabe in 3 Teilaufgaben zerlegen (z. B. „prüfe Tests", „prüfe Doku", „prüfe Performance")</li>
+      <li>Jeweils ein Subagent-Aufruf mit klarer Rolle</li>
+      <li>Ergebnisse zusammenfügen</li>
+      <li>Beobachten: jeder Subagent hat eigenen Kontext, keine Interferenzen</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="quote">Starte 3 Subagents parallel:
+- Agent A: prüfe alle Tests in tests/ auf Lücken
+- Agent B: prüfe Doku in src/ auf Vollständigkeit
+- Agent C: finde langsame Stellen mit BenchmarkDotNet
+Fasse die Ergebnisse zusammen.</span>
+  </div>
+
+  <div class="info">💡 Hinweis: SPS/Motion-Folks &mdash; auch hier funktioniert das Pattern. Der Subagent kann Codesys-Export prüfen, ein anderer TIA-DLL-API. Egal welche Toolchain.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Mind. 3 Subagent-Aufrufe gestartet, Ergebnisse vorhanden.</div>
+
+  <p class="next-up">→ Decision Framework: Welches Pattern wann?</p>
+</div>
+
+<!-- ----- Decision Framework ----- -->
+<div class="slide b4">
+  <div class="header">
+    <span class="block-tag">Block 4 &middot; Decision</span>
+    <span class="timer">⏱️ 15 min</span>
+  </div>
+  <h1>Decision Framework</h1>
+  <h2 class="subtitle">Welches Pattern für welche Situation?</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Im Team eine Pattern-Zuordnung erarbeiten, die für eure Arbeit gilt.</div>
+
+  <div class="steps">
+    <ol>
+      <li>Sammelt 5 typische Aufgaben aus eurem Backlog (Bug, Feature, Refactor, Migration, Doku)</li>
+      <li>Zu jeder Aufgabe: welches Pattern passt? (HITL, Reusable, Sub-Agent, oder „Pattern 0" = ohne KI)</li>
+      <li>Begründet kurz</li>
+      <li>1 Folie / Flipchart pro Team</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Beispiel-Tabelle, die ihr erweitert:</span>
+| Situation                  | Pattern         | Warum?              |
+| Production-Bug             | HITL            | Maximale Kontrolle  |
+| Tägliches Code-Review      | Reusable        | Standardisiert      |
+| Multi-File-Refactor        | Sub-Agent       | Parallelisierbar    |
+| Variable umbenennen        | Pattern 0       | sed ist schneller   |
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Eine Pattern-Matrix steht für euer Team.</div>
+
+  <p class="next-up">→ Pause, dann Block 5: Eigenes Repo onboarden</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- BLOCK 5 — Eigenes Repo onboarden (15:30–16:45)              -->
+<!-- ============================================================ -->
+
+<div class="slide b5">
+  <div class="header">
+    <span class="block-tag">Block 5</span>
+    <span class="timer">⏱️ 75 min</span>
+  </div>
+  <h1>Euer Repo onboarden &mdash; <code>ai_docs/</code></h1>
+  <h2 class="subtitle">Was muss die KI über euren Code wissen, was sie nicht aus dem Code rauslesen kann?</h2>
+
+  <div class="goal"><strong>Ziel:</strong> Erstes <code>ai_docs/</code>-Verzeichnis bauen mit Domain-Wissen, Architektur, Gotchas.</div>
+
+  <h3 style="color: var(--purple); margin: 0.5em 0;">Rollen-Rotation (alle 25 min wechseln):</h3>
+  <div class="two-col-roles">
+    <div class="role-card">
+      <h3>🏠 Code-Owner</h3>
+      <p>Kennt den Code, korrigiert die KI, bringt Kontext ein.</p>
+    </div>
+    <div class="role-card">
+      <h3>🚗 KI-Driver</h3>
+      <p>Tippt, prompted, fragt nach. Sieht den Code zum ersten Mal.</p>
+    </div>
+    <div class="role-card">
+      <h3>📝 Context-Capturer</h3>
+      <p>Schreibt mit, was in <code>ai_docs/</code> kommen muss. SOFORT, wenn Code-Owner korrigiert.</p>
+    </div>
+  </div>
+
+  <div class="steps">
+    <ol>
+      <li>Runde 1 (25 min): <code>/prime-architecture</code> &mdash; KI-Driver führt aus, Code-Owner challenged, Capturer schreibt Korrekturen direkt in <code>ai_docs/ARCHITECTURE.md</code></li>
+      <li>Runde 2 (25 min): Rollen rotieren. <code>/prime-domain</code> &mdash; Glossar + Business-Regeln + Constraints &rarr; <code>ai_docs/DOMAIN_KNOWLEDGE.md</code></li>
+      <li>Runde 3 (20 min): Rollen rotieren erneut. <code>/prime-conventions</code> &mdash; Code-Stil + KI-typische Halluzinationen &rarr; <code>ai_docs/CONVENTIONS.md</code> + <code>GOTCHAS.md</code></li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Setup einmalig: Reference-Commands aus practice-repo holen</span>
+<span class="cmd">$ cp -r /pfad/zu/ki-workshop-practice-repo/.opencode/commands ./.opencode/</span>
+
+<span class="comment"># Runde 1 &mdash; Architektur</span>
+<span class="cmd">$ opencode-cli</span>
+<span class="quote">&gt; /prime-architecture</span>
+<span class="comment"># Code-Owner challenged → Capturer trägt Korrekturen direkt in ARCHITECTURE.md ein</span>
+
+<span class="comment"># Runde 2 &mdash; Domain (Rollen rotiert)</span>
+<span class="quote">&gt; /prime-domain</span>
+
+<span class="comment"># Runde 3 &mdash; Conventions + Gotchas (Rollen rotiert erneut)</span>
+<span class="quote">&gt; /prime-conventions</span>
+
+<span class="comment"># Optional Argument: Fokus auf Modul/Pfad</span>
+<span class="quote">&gt; /prime-architecture src/EngineeringTooling</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> <code>ai_docs/</code> enthält ARCHITECTURE.md + DOMAIN_KNOWLEDGE.md + CONVENTIONS.md + GOTCHAS.md, jedes vom Code-Owner reviewt.</div>
+
+  <p class="next-up">→ Tagesabschluss: Stehkreis Top-3-Learnings + Hausaufgabe Tag 2</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- BLOCK 6 — Scaffolding-Pipeline (Tag 2, 8:45–10:15)         -->
+<!-- ============================================================ -->
+
+<!-- ----- Block 6 Intro: opencode-cli vs opencode-cli ----- -->
+<div class="slide b6">
+  <div class="header">
+    <span class="block-tag">Block 6 &middot; Tool-Wechsel</span>
+    <span class="timer">2 min</span>
+  </div>
+  <h1>Vom interaktiven Modus in die Pipeline</h1>
+  <h2 class="subtitle">Dasselbe Tool, zwei Modi &mdash; ab Block 6 nutzen wir das <code>run</code>-Subkommando</h2>
+
+  <div class="two-col-roles">
+    <div class="role-card">
+      <h3>Bisher: TUI-Modus</h3>
+      <p><strong>Interaktiv, Multi-Turn</strong></p>
+      <p>Conversation, Slash-Commands im Verlauf. Gut zum Explorieren, Debuggen, Lernen.</p>
+      <p style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 4px 8px; margin-top: 0.5em; border-radius: 4px; font-size: 0.85em;">$ opencode-cli</p>
+    </div>
+    <div class="role-card">
+      <h3>Ab jetzt: <code>run</code>-Subkommando</h3>
+      <p><strong>Non-interactive, Single-Shot</strong></p>
+      <p>Prompt rein, Antwort raus. Skriptbar, in Pipelines einbindbar, deterministisch wiederholbar.</p>
+      <p style="font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 4px 8px; margin-top: 0.5em; border-radius: 4px; font-size: 0.85em;">$ opencode-cli run "Mach X"</p>
+    </div>
+  </div>
+
+  <div class="info" style="margin-top: 1em;">
+    <strong>Analog überall:</strong> Claude Code hat <code>claude</code> (TUI) und <code>claude -p "..."</code> (CLI). Codex hat <code>codex</code> und <code>codex exec</code>. Konzept identisch: Konversation für Menschen, Subkommando für Maschinen.
+  </div>
+
+  <p class="next-up">Ab jetzt: <strong><code>opencode-cli run "..."</code></strong> für Pipeline-Stufen. Eure <code>.opencode/commands/*.md</code> aus Tag 1 funktionieren in beiden Modi.</p>
+</div>
+
+<!-- ----- Block 6 Phase 1 ----- -->
+<div class="slide b6">
+  <div class="header">
+    <span class="block-tag">Block 6 &middot; Phase 1</span>
+    <span class="timer">⏱️ 25 min</span>
+  </div>
+  <h1>Stufen ① + ② &mdash; Context &amp; Plan</h1>
+  <h2 class="subtitle"><strong>Selbes Repo wie Block 5.</strong> Eure mitgebrachte Aufgabe trifft jetzt auf das gestern gebaute <code>ai_docs/</code>.</h2>
+
+  <div class="goal" style="border-left: 4px solid var(--orange); padding-left: 1em;">
+    <strong>Ziel:</strong> Aus eurer Aufgabe ein <code>briefing.md</code> machen, das die KI mit allem füttert, was sie für die Aufgabe braucht &mdash; <strong>inklusive Architektur, Domain, Conventions aus <code>ai_docs/</code></strong>.
+  </div>
+
+  <div class="info" style="margin: 0.6em 0;">
+    💡 <strong>Wichtig:</strong> Die Commands <code>/context</code> und <code>/plan</code> liegen schon in <code>.opencode/commands/</code> &mdash; entweder weil ihr gestern die Reference aus <code>ki-workshop-practice-repo</code> reinkopiert habt, oder ihr macht das jetzt. <em>Nicht neu schreiben.</em>
+  </div>
+
+  <div class="steps">
+    <ol>
+      <li>Im Repo aus Block 5 (mit <code>ai_docs/</code>) bleiben &mdash; <strong>nicht</strong> ins practice-repo wechseln</li>
+      <li>Eure Aufgabe von gestern als Argument an <code>/context</code> reichen</li>
+      <li><code>briefing.md</code> reviewen: hat die KI Domain + Architektur aus <code>ai_docs/</code> richtig zusammengefasst?</li>
+      <li><code>/plan</code> liest <code>briefing.md</code> &mdash; produziert <code>plan.md</code></li>
+      <li>Mensch-Gate: <strong>Plan reviewen, bevor Phase 2 startet</strong></li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Im selben Repo wie Block 5 — ai_docs/ ist schon da</span>
+<span class="cmd">$ ls ai_docs/</span>
+<span class="quote">ARCHITECTURE.md  CONVENTIONS.md  DOMAIN_KNOWLEDGE.md  GOTCHAS.md</span>
+
+<span class="comment"># Stufe ① — Context-Gather (zieht ai_docs/ automatisch rein)</span>
+<span class="cmd">$ opencode-cli run "/context Ticket-1234: Charge-Validierung erweitern"</span>
+<span class="comment"># Output: briefing.md mit Aufgabe + Akzeptanz + Code-Pfade</span>
+<span class="comment">#         + Domain-Auszug aus ai_docs/DOMAIN_KNOWLEDGE.md</span>
+<span class="comment">#         + relevante Conventions aus ai_docs/CONVENTIONS.md</span>
+
+<span class="comment"># 2-Minuten-Review: hat die KI verstanden, worum es geht?</span>
+<span class="cmd">$ less briefing.md</span>
+
+<span class="comment"># Stufe ② — Plan</span>
+<span class="cmd">$ opencode-cli run "/plan"</span>
+<span class="comment"># Output: plan.md mit Vorgehen + betroffenen Dateien + Risiken</span>
+
+<span class="comment"># 5-Minuten-Review: ist das der richtige Weg? Fehlt eine Datei?</span>
+<span class="cmd">$ less plan.md</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> <code>briefing.md</code> referenziert sichtbar Begriffe aus <code>DOMAIN_KNOWLEDGE.md</code> + <code>plan.md</code> ist vom Code-Owner abgenickt.</div>
+
+  <p class="next-up">→ Phase 2: Test-Plan-Stufe (liest briefing + plan)</p>
+</div>
+
+<!-- ----- Block 6 Phase 2 ----- -->
+<div class="slide b6">
+  <div class="header">
+    <span class="block-tag">Block 6 &middot; Phase 2</span>
+    <span class="timer">⏱️ 25 min</span>
+  </div>
+  <h1>Stufe ③ &mdash; Test-Plan</h1>
+  <h2 class="subtitle">Aus Beobachtersicht beschreiben, wie Erfolg aussieht &mdash; <strong>kein</strong> Test-Code.</h2>
+
+  <div class="goal" style="border-left: 4px solid var(--orange); padding-left: 1em;">
+    <strong>Ziel:</strong> <code>test-plan.md</code> für eure Aufgabe &mdash; <strong>im selben Repo wie Phase 1</strong>, basierend auf <code>briefing.md</code> + <code>plan.md</code>.
+  </div>
+
+  <div class="info" style="margin: 0.6em 0;">
+    💡 <code>/test-plan</code> liegt schon in <code>.opencode/commands/</code>. Er liest <code>briefing.md</code> und <code>plan.md</code> automatisch &mdash; ihr müsst nur den Command auslösen.
+  </div>
+
+  <div class="steps">
+    <ol>
+      <li>Sicherstellen: <code>briefing.md</code> + <code>plan.md</code> aus Phase 1 liegen im Aufgaben-Verzeichnis</li>
+      <li><code>/test-plan</code> ausführen &mdash; ohne Argument, der Command findet die Vor-Dokumente selbst</li>
+      <li>Akzeptanztests reviewen: deckt jeder <code>Wenn / Und / Dann</code>-Satz ein Akzeptanzkriterium aus dem Briefing ab?</li>
+      <li>Edge Cases reviewen: stehen domain-spezifische Cases drin (aus <code>ai_docs/DOMAIN_KNOWLEDGE.md</code>) oder nur generisches null/empty?</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Voraussetzung: briefing.md + plan.md aus Phase 1 sind da</span>
+<span class="cmd">$ ls briefing.md plan.md</span>
+
+<span class="comment"># Stufe ③ — Test-Plan (liest briefing + plan automatisch)</span>
+<span class="cmd">$ opencode-cli run "/test-plan"</span>
+<span class="comment"># Output: test-plan.md mit Wenn/Und/Dann + Edge Cases + Wie-wir-prüfen</span>
+
+<span class="comment"># Review: deckt der Plan die Akzeptanzkriterien ab?</span>
+<span class="cmd">$ less test-plan.md</span>
+
+<span class="comment"># Wichtig: KEINE Test-Code-Zeilen drin — nur Beschreibung.</span>
+<span class="comment"># Test-Code kommt in Stufe ④.</span>
+  </div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> <code>test-plan.md</code> jeden Wenn/Dann-Satz auf ein Akzeptanzkriterium aus <code>briefing.md</code> abbildet, Edge Cases sind domain-spezifisch (nicht nur generisches null/empty).</div>
+
+  <p class="next-up">→ Phase 3 (Stretch): Stufe ④ Implement &mdash; nur wenn Zeit</p>
+</div>
+
+<!-- ----- Block 6 Phase 3 (Stretch) ----- -->
+<div class="slide b6">
+  <div class="header">
+    <span class="block-tag">Block 6 &middot; Phase 3 &middot; Stretch</span>
+    <span class="timer">⏱️ 15 min</span>
+  </div>
+  <h1>Stretch: Stufen ④ + ⑤ &mdash; Implement &amp; Review</h1>
+  <h2 class="subtitle">Pipeline vollständig durchlaufen &mdash; Code, Tests, MR-Body. <strong>Mensch macht den Commit.</strong></h2>
+
+  <div class="goal" style="border-left: 4px solid var(--orange); padding-left: 1em;">
+    <strong>Ziel:</strong> Mit den drei Vor-Dokumenten (briefing/plan/test-plan) Code+Tests erzeugen und einen reviewfähigen MR-Body bekommen &mdash; ohne dass die Pipeline auto-committet.
+  </div>
+
+  <div class="info" style="margin: 0.6em 0;">
+    💡 <code>/implement</code> und <code>/review</code> liegen schon in <code>.opencode/commands/</code>. Beide lesen die Vor-Dokumente automatisch &mdash; ihr müsst nur auslösen und reviewen.
+  </div>
+
+  <div class="steps">
+    <ol>
+      <li>Sicherstellen: <code>briefing.md</code> + <code>plan.md</code> + <code>test-plan.md</code> liegen im Aufgaben-Verzeichnis</li>
+      <li><code>/implement</code> auslösen &mdash; produziert Code + Tests, fasst nur Dateien aus <code>plan.md</code> an</li>
+      <li>Tests laufen lassen, Diff lesen</li>
+      <li><code>/review</code> auslösen &mdash; produziert <code>COMMIT_MSG.txt</code> + <code>MR_BODY.md</code></li>
+      <li><strong>Mensch macht den Commit selbst</strong> mit der vorgeschlagenen Message</li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Stufe ④ — Implement (Red → Green → Clean)</span>
+<span class="cmd">$ opencode-cli run "/implement"</span>
+<span class="comment"># Output: Diff (Code + Tests). Nur Dateien aus plan.md werden angefasst.</span>
+
+<span class="cmd">$ dotnet test</span>
+<span class="comment"># Erwartung: alle grün. Wenn rot → ABBRECHEN, plan.md schärfen.</span>
+
+<span class="cmd">$ git diff --stat</span>
+<span class="comment"># Sanity: keine fremden Dateien? Größe wie erwartet?</span>
+
+<span class="comment"># Stufe ⑤ — Review (kein Commit, nur Vorschlag)</span>
+<span class="cmd">$ opencode-cli run "/review"</span>
+<span class="comment"># Output: COMMIT_MSG.txt + MR_BODY.md</span>
+
+<span class="comment"># Mensch-Gate: Ihr commitet, nicht der Agent.</span>
+<span class="cmd">$ git add &lt;files-aus-plan.md&gt;</span>
+<span class="cmd">$ git commit -F COMMIT_MSG.txt</span>
+  </div>
+
+  <div class="info">⚠️ Auto-Commit-Verbot ist eure interne Compliance-Policy (Risikobeurteilung gegen unkontrollierte KI-Commits). Auch <code>/review</code> committet nicht &mdash; er schreibt nur <code>COMMIT_MSG.txt</code>, ihr führt <code>git commit</code> selbst aus.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> Tests grün &amp; Diff hält sich an <code>plan.md</code> &amp; ihr habt selbst committed mit der vorgeschlagenen Message. <em>Oder:</em> klar dokumentiert, woran es gescheitert ist.</div>
+
+  <p class="next-up">→ Sharing (15 min): Was hat funktioniert, was nicht?</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- BLOCK 7 — Anwendung auf eigene Aufgabe (10:30–11:30)        -->
+<!-- ============================================================ -->
+
+<div class="slide b7">
+  <div class="header">
+    <span class="block-tag">Block 7</span>
+    <span class="timer">⏱️ 60 min</span>
+  </div>
+  <h1>Pipeline gegen reale Aufgabe</h1>
+  <h2 class="subtitle"><strong>Selbes Repo wie Block 5+6.</strong> Bonus: lasst OpenCode sich selbst einen <code>/pipeline</code>-Orchestrator schreiben, der die 5 Stufen als Subagents kettet.</h2>
+
+  <div class="goal" style="border-left: 4px solid var(--orange); padding-left: 1em;">
+    <strong>Ziel:</strong> Aus den Einzel-Commands aus Block 6 wird ein <strong>einziger</strong> <code>/pipeline</code>-Command, der die Stufen ①&ndash;⑤ hintereinander als Subagents ausführt &mdash; mit Mensch-Gates dazwischen. OpenCode schreibt euch diesen Command selbst.
+  </div>
+
+  <div class="info" style="margin: 0.6em 0;">
+    💡 <strong>Meta-Übung:</strong> Ihr fragt OpenCode nicht nach dem Code, sondern nach dem <em>Command</em>, der den Code orchestriert. Der Agent baut sein eigenes Werkzeug. Subagents bekommen jeweils ein eigenes Kontextfenster &mdash; jede Stufe arbeitet sauber isoliert, statt einen gigantischen Kontext durchzuschleppen.
+  </div>
+
+  <div class="steps">
+    <ol>
+      <li>OpenCode bitten, eine Datei <code>.opencode/commands/pipeline.md</code> anzulegen, die <code>/context</code> &rarr; <code>/plan</code> &rarr; <code>/test-plan</code> &rarr; <code>/implement</code> &rarr; <code>/review</code> sequenziell als Subagents aufruft, mit Stop-Punkt nach jeder Stufe für Mensch-Review</li>
+      <li>Resultat reviewen: ruft der Command wirklich Subagents auf? Sind die Mensch-Gates drin? Bricht er bei Fehlern ab?</li>
+      <li><code>/pipeline</code> gegen eure mitgebrachte Aufgabe laufen lassen</li>
+      <li>Pro Stufen-Gate: 30&ndash;60 Sekunden lesen, dann <em>continue</em> oder <em>stop</em></li>
+    </ol>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Schritt 1 — OpenCode baut sich seinen eigenen Pipeline-Command</span>
+<span class="cmd">$ opencode-cli</span>
+<span class="quote">&gt; Lege .opencode/commands/pipeline.md an. Der Command soll die fünf</span>
+<span class="quote">  bestehenden Commands /context /plan /test-plan /implement /review</span>
+<span class="quote">  hintereinander aufrufen — jede Stufe als eigener Subagent mit</span>
+<span class="quote">  isoliertem Kontext. Zwischen den Stufen jeweils ein Mensch-Gate</span>
+<span class="quote">  (continue / stop), und Abbruch wenn eine Stufe fehlschlägt.</span>
+
+<span class="comment"># Schritt 2 — kurz reviewen, was der Agent geschrieben hat</span>
+<span class="cmd">$ less .opencode/commands/pipeline.md</span>
+
+<span class="comment"># Schritt 3 — Pipeline gegen eure echte Aufgabe</span>
+<span class="cmd">$ opencode-cli run "/pipeline Ticket-1234: [Kurzbeschreibung]"</span>
+<span class="comment"># Pro Stufe wird ein Subagent gestartet. Output liegt im</span>
+<span class="comment"># Aufgaben-Verzeichnis: briefing.md / plan.md / test-plan.md / Diff / MR_BODY.md</span>
+
+<span class="comment"># Falls keine Zeit für /pipeline: Stufen einzeln durchlaufen wie Block 6</span>
+  </div>
+
+  <div class="info">⚠️ <strong>Subagent-Vorteil:</strong> jede Stufe startet mit frischem Kontext &mdash; der <code>/implement</code>-Subagent wird nicht von der gesamten Briefing-Diskussion belastet, sondern liest nur, was er braucht. Das skaliert besser und produziert deterministischere Outputs.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> <code>.opencode/commands/pipeline.md</code> existiert &amp; <code>briefing.md</code> + <code>plan.md</code> + <code>test-plan.md</code> liegen vor &amp; jedes ist auf <code>ai_docs/</code> zurückführbar &mdash; oder dokumentiert, woran es gescheitert ist.</div>
+
+  <p class="next-up">→ Abschluss-Übung: Retro &amp; <code>ai_docs/</code>-Patches (Stufe ⑥)</p>
+</div>
+
+<!-- ----- Block 7 Abschluss: Retro / Session-close light ----- -->
+<div class="slide b7">
+  <div class="header">
+    <span class="block-tag">Block 7 &middot; Abschluss</span>
+    <span class="timer">⏱️ 20 min</span>
+  </div>
+  <h1>Stufe ⑥ &mdash; Retro &amp; <code>ai_docs/</code>-Update</h1>
+  <h2 class="subtitle"><strong>Session-close light:</strong> die Lernschleife schließen, sonst stagniert <code>ai_docs/</code>.</h2>
+
+  <div class="goal" style="border-left: 4px solid var(--orange); padding-left: 1em;">
+    <strong>Ziel:</strong> Die Korrekturen aus diesem Pipeline-Lauf in konkrete Patches an <code>ai_docs/</code> übersetzen &mdash; damit die KI beim nächsten Lauf weniger halluziniert und ihr nicht zweimal dieselbe Korrektur tippt.
+  </div>
+
+  <div class="info" style="margin: 0.6em 0;">
+    💡 <strong>Kein Commit, kein Push, kein Tag.</strong> <code>/retro</code> schreibt nur einen Report und Patch-Vorschläge. Ihr entscheidet pro Patch: übernehmen / anpassen / ablehnen, dann committet ihr <code>ai_docs/</code> selbst &mdash; <strong>separat</strong> vom Aufgaben-Commit aus Stufe ⑤.
+  </div>
+
+  <h3 style="color: var(--purple); margin: 0.5em 0;">Drei Reflexions-Fragen (5 min Team):</h3>
+  <div class="two-col-roles">
+    <div class="role-card">
+      <h3>1. Lücke</h3>
+      <p>Was musste der Mensch der KI sagen, was nicht in <code>ai_docs/</code> stand? &rarr; <code>DOMAIN_KNOWLEDGE.md</code></p>
+    </div>
+    <div class="role-card">
+      <h3>2. Halluzination</h3>
+      <p>Was hat die KI vorgeschlagen, das wir verworfen haben? &rarr; <code>GOTCHAS.md</code></p>
+    </div>
+    <div class="role-card">
+      <h3>3. Unklarheit</h3>
+      <p>Welche Konvention musste mehrfach erklärt werden? &rarr; <code>CONVENTIONS.md</code></p>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+<span class="comment"># Stufe ⑥ — Retro (liest Pipeline-Artefakte + ai_docs/ automatisch)</span>
+<span class="cmd">$ opencode-cli run "/retro"</span>
+<span class="comment"># Output: retro-report.md + ai_docs-patches.md</span>
+
+<span class="comment"># Team reviewt Patch für Patch — übernehmen / anpassen / ablehnen</span>
+<span class="cmd">$ less ai_docs-patches.md</span>
+
+<span class="comment"># Mensch wendet die übernommenen Patches selbst an</span>
+<span class="cmd">$ $EDITOR ai_docs/DOMAIN_KNOWLEDGE.md</span>
+<span class="cmd">$ $EDITOR ai_docs/GOTCHAS.md</span>
+
+<span class="comment"># Separater Commit — macht ai_docs-Wachstum in der Git-Historie sichtbar</span>
+<span class="cmd">$ git add ai_docs/ &amp;&amp; git commit -m "docs(ai_docs): Lernen aus Ticket-1234"</span>
+  </div>
+
+  <div class="info">⚠️ <strong>„Funktioniert super!" ist als Retro-Output wertlos.</strong> Wenn alles gut lief, schreibt <em>warum</em> &mdash; das ist auch <code>ai_docs/</code>-würdig.</div>
+
+  <div class="done-when"><strong>Fertig wenn:</strong> 2&ndash;3 Patches an <code>ai_docs/</code> committed sind &mdash; oder bewusst dokumentiert, warum kein Patch reinging (auch valid).</div>
+
+  <p class="next-up">→ Block 8: Action Planning &mdash; was nehmen wir Montag mit?</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- SHARING / REFLECTION SLIDES (zum dazwischenstreuen)         -->
+<!-- ============================================================ -->
+
+<div class="slide sharing">
+  <h1>🔄 Mini-Sharing</h1>
+  <p class="subtitle">5 Minuten</p>
+  <div class="question">Welcher Moment war heute der überraschendste?</div>
+  <p class="timer">⏱️ Ein Team teilt &middot; nicht alle</p>
+</div>
+
+<div class="slide sharing">
+  <h1>🔄 Stand-up Reflexion</h1>
+  <p class="subtitle">10 Minuten</p>
+  <div class="question">Was nehmt ihr nach Hause &mdash; in einem Satz?</div>
+  <p class="timer">⏱️ Jede/r ein Satz im Stehkreis</p>
+</div>
+
+</body>
+</html>
