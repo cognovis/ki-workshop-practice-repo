@@ -17,15 +17,19 @@ Der erste Test-Run **muss Failures zeigen** — das ist Absicht. Dort lauern die
 
 ## Voraussetzungen
 
-- .NET 8 SDK installiert (`dotnet --version` muss funktionieren)
+- .NET SDK installiert — Standard ist `net8.0` (`dotnet --version` muss funktionieren)
 - Ein Coding-Agent CLI eurer Wahl (OpenCode, Claude Code, Codex)
 - Optional: API-Zugang über LiteLLM-Routing oder direkt
+
+> **Andere .NET-Version installiert?** Das ist ein perfekter erster Use Case für den Agenten — lasst ihn die Migration planen und durchführen (Plan zuerst, dann implementieren, dann verifizieren). Siehe Workshop Block 2 Bonus-Übung.
 
 ## Struktur
 
 ```
 practice-repo/
 ├── PracticeRepo.sln
+├── .opencode/
+│   └── commands/          # Workshop-Reference Commands für Block 5–7 (siehe README darin)
 ├── src/
 │   ├── Calculator/        # Calculator-Modul (sauber implementiert, dient als Demo)
 │   │   └── Calculator.cs
@@ -35,6 +39,19 @@ practice-repo/
     ├── Calculator.Tests/  # xUnit-Tests, teilweise vorhanden
     └── Utils.Tests/       # xUnit-Tests, sehr unvollständig — eure Aufgabe
 ```
+
+## Workshop-Reference Commands (Block 5–7)
+
+Im Verzeichnis [`.opencode/commands/`](.opencode/commands/README.md) findet ihr
+fertig formulierte Custom Commands für die Workshop-Blöcke 5–7:
+
+- **Block 5 (Brownfield-Onboarding):** `/prime-architecture`, `/prime-domain`,
+  `/prime-conventions` — drei Runden mit Rollen-Rotation, erzeugen `ai_docs/`.
+- **Block 6 + 7 (Scaffolding-Pipeline):** `/context`, `/plan`, `/test-plan`,
+  `/implement`, `/review` — die 5 Pipeline-Stufen.
+
+Kopiert sie in euer eigenes Repo unter `.opencode/commands/` und passt sie an
+euren Stack an. Funktionieren ebenso unter `.claude/commands/` für Claude Code.
 
 ## Bug-Status
 
