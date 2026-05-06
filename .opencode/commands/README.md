@@ -40,11 +40,22 @@ Dokument, das Input für die nächste ist.
 („ist der Plan richtig?") und nach ⑤ (Mensch macht den Commit, **nie** der
 Agent).
 
-## Block 7 — Anwendung auf eigene Aufgabe
+## Block 7 — Anwendung auf eigene Aufgabe + Retro
 
-Block 7 hat **keine eigenen Commands** — er nutzt die Pipeline aus Block 6 mit
-einer realen, mitgebrachten Aufgabe aus eurem Backlog. Falls Zeit reicht, lauft
-Stufe ① + ② + ③ durch (oft schon Realismus genug). Stufe ④ + ⑤ als Stretch.
+Block 7 nutzt die Pipeline aus Block 6 mit einer realen, mitgebrachten
+Aufgabe aus eurem Backlog. Falls Zeit reicht, lauft Stufe ① + ② + ③ durch
+(oft schon Realismus genug). Stufe ④ + ⑤ als Stretch.
+
+**Abschluss-Übung** (≈20 min) — die Lernschleife schließen:
+
+| Stufe | Command | Input | Output |
+|-------|---------|-------|--------|
+| ⑥ Retro | `/retro` | Pipeline-Artefakte + `ai_docs/` | `retro-report.md` + `ai_docs-patches.md` |
+
+`/retro` ist als **session-close light** gedacht: kein Commit, kein Push — nur
+Lernschleife. Output sind konkrete Patch-Vorschläge an `ai_docs/`, die der
+Mensch reviewt und (wenn passend) als separaten Commit einarbeitet. Damit
+wächst euer `ai_docs/` mit jedem Pipeline-Lauf.
 
 ## Wie ihr das nutzt
 
@@ -66,7 +77,10 @@ opencode-cli
 opencode-cli run "/prime-architecture"
 opencode-cli run "/context Ticket-1234: Refactor Charge-Repository"
 opencode-cli run "/plan"
-# ...
+opencode-cli run "/test-plan"
+opencode-cli run "/implement" && dotnet test
+opencode-cli run "/review"
+opencode-cli run "/retro"   # Lernschleife: ai_docs-Patches
 ```
 
 ## Anpassen an euren Stack
