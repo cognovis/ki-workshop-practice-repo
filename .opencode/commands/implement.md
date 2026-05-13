@@ -39,7 +39,7 @@ Vorhergehende war Vorbereitung. Du nimmst genau drei Dokumente als Input
 - **Klein halten:** Wenn dein Diff plötzlich >300 Zeilen wird, obwohl der Plan
   „klein" wirkte — pausiere und challenge den Plan.
 - **Kein Auto-Commit.** Du machst keine `git commit`-Aufrufe. Stufe ⑤ ist immer ein
-  Mensch-Gate (Syntegon-Policy / Risikobeurteilung Matti Meyer).
+  Mensch-Gate (interne Compliance-Policy).
 
 ## Was du NICHT tust
 

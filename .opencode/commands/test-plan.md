@@ -48,7 +48,7 @@ Pipeline wiederverwendbar.
   - Hardware-In-The-Loop: <was, wo, wer>
 ```
 
-## Test-Strategie für Syntegon-Kontext
+## Test-Strategie für Anlagenbau-Kontext
 
 Fokus auf **Gesamt-Applikations-Tests** (CLI-Aufruf mit Eingabe/Ausgabe-Werten,
 HTTP-Port-Abgriff via Playwright CLI), **nicht jede einzelne Unit-Test-Methode

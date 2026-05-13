@@ -10,7 +10,7 @@ und eine **gute Commit-Message**.
 
 > **Stufe ⑤ ist ein Mensch-Gate, kein Auto-Commit.** Du schreibst MR-Body und
 > Commit-Message vor — der Mensch liest, korrigiert wenn nötig, committed dann
-> selbst. Das ist Syntegon-Policy (Risikobeurteilung Matti Meyer für GitHub
+> selbst. Das entspricht der internen Compliance-Policy (Auto-Commit-Verbot für KI-gestütztes
 > Copilot). „Alles dürfen beim Coden, nur NICHT automatisch committen."
 
 ## Auftrag

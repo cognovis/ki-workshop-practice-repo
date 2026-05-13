@@ -1,8 +1,8 @@
 # Workshop-Reference Commands für OpenCode
 
-Diese Custom Commands gehören zum **Syntegon KI-Workshop** (5./6. Mai 2026,
-Crailsheim). Sie sind als **Vorlage** gedacht — kopiert sie in euer eigenes
-Repository unter `.opencode/commands/`, passt sie an euren Stack an, baut weiter.
+Diese Custom Commands gehören zum **KI-Workshop** (Mai 2026). Sie sind als
+**Vorlage** gedacht — kopiert sie in euer eigenes Repository unter
+`.opencode/commands/`, passt sie an euren Stack an, baut weiter.
 
 > **Gilt auch für Claude Code / Codex CLI:** Die Konvergenz ist `.opencode/commands/`
 > oder `.claude/commands/`. Inhalt der Markdown-Dateien funktioniert in beiden
@@ -65,7 +65,7 @@ opencode-cli
 > /prime-architecture
 > /prime-domain
 > /prime-conventions
-> /context Ticket-1234: Refactor Charge-Repository
+> /context Ticket-1234: Refactor <Komponenten-Name>
 > /plan
 > /test-plan
 > /implement
@@ -75,7 +75,7 @@ opencode-cli
 ### Nicht-interaktiv (skriptbar):
 ```bash
 opencode-cli run "/prime-architecture"
-opencode-cli run "/context Ticket-1234: Refactor Charge-Repository"
+opencode-cli run "/context Ticket-1234: Refactor <Komponenten-Name>"
 opencode-cli run "/plan"
 opencode-cli run "/test-plan"
 opencode-cli run "/implement" && dotnet test
@@ -103,8 +103,8 @@ konkreter, desto weniger halluziniert die KI.
 - **Domain-Wissen in Custom Commands hardcoden.** Domain gehört nach `ai_docs/`,
   von **allen** Commands gelesen. Custom Commands sind Verben, `ai_docs/` sind
   Nomen.
-- **Auto-Commit aktivieren.** Verstößt gegen Syntegon-Policy
-  (Risikobeurteilung Matti Meyer). Mensch macht den Commit.
+- **Auto-Commit aktivieren.** Verstößt typischerweise gegen interne
+  Compliance-/Code-Review-Policy. Mensch macht den Commit.
 
 ## Hintergrund
 
